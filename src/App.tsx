@@ -95,6 +95,21 @@ const DEFAULT_CHARACTER: CharacterData = {
   characterImage: null,
 };
 
+// Style constants
+const colors = {
+  bgPrimary: '#0a0a0f',
+  bgSecondary: '#12121a',
+  bgTertiary: '#1a1a2e',
+  bgCard: '#16162a',
+  border: '#2a2a4a',
+  accentPrimary: '#7c3aed',
+  accentSecondary: '#a855f7',
+  textPrimary: '#e2e8f0',
+  textSecondary: '#94a3b8',
+  textMuted: '#64748b',
+  danger: '#ef4444',
+};
+
 function App() {
   const [character, setCharacter] = useState<CharacterData>(DEFAULT_CHARACTER);
   const [showElementDropdown, setShowElementDropdown] = useState(false);
@@ -128,7 +143,6 @@ function App() {
     setCharacter(prev => ({ ...prev, [field]: value }));
   };
 
-  // Race management
   const toggleRace = (race: string) => {
     setCharacter(prev => {
       const races = prev.races.includes(race)
@@ -150,7 +164,6 @@ function App() {
     }).join(', ');
   };
 
-  // Element management
   const toggleElement = (element: string) => {
     setCharacter(prev => {
       const elements = prev.elements.includes(element)
@@ -169,7 +182,6 @@ function App() {
     }).join(', ');
   };
 
-  // Image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -181,7 +193,6 @@ function App() {
     }
   };
 
-  // Save to JSON file
   const saveToFile = () => {
     const data = JSON.stringify(character, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -194,7 +205,6 @@ function App() {
     showNotification('Данные сохранены в файл!');
   };
 
-  // Load from JSON file
   const loadFromFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -213,13 +223,11 @@ function App() {
     if (loadInputRef.current) loadInputRef.current.value = '';
   };
 
-  // Save to localStorage
   const saveToLocalStorage = () => {
     localStorage.setItem('dm_character', JSON.stringify(character));
     showNotification('Сохранено в браузере!');
   };
 
-  // Load from localStorage
   const loadFromLocalStorage = () => {
     const saved = localStorage.getItem('dm_character');
     if (saved) {
@@ -235,7 +243,6 @@ function App() {
     }
   };
 
-  // Export to TXT
   const exportToTxt = () => {
     const txt = `═══════════════════════════════════════════
   DISTORTED MULTIVERSE - IDEAL WORLD
@@ -274,7 +281,6 @@ function App() {
     showNotification('Экспортировано в TXT!');
   };
 
-  // Export to PNG
   const exportToPng = useCallback(async () => {
     if (!sheetRef.current) return;
     try {
@@ -295,7 +301,6 @@ function App() {
     }
   }, [character.name]);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClick = () => {
       setShowElementDropdown(false);
@@ -308,32 +313,41 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
       {/* Notification */}
       {notification && (
-        <div className="fixed top-4 right-4 z-[100] animate-fade-in"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--accent-primary)',
-            borderRadius: '8px',
-            padding: '12px 20px',
-            color: 'var(--accent-secondary)',
-            fontSize: '14px',
-            boxShadow: '0 4px 20px var(--accent-glow)',
-          }}>
+        <div style={{
+          position: 'fixed',
+          top: '16px',
+          right: '16px',
+          zIndex: 100,
+          backgroundColor: colors.bgCard,
+          border: `1px solid ${colors.accentPrimary}`,
+          borderRadius: '8px',
+          padding: '12px 20px',
+          color: colors.accentSecondary,
+          fontSize: '14px',
+          boxShadow: `0 4px 20px ${colors.accentPrimary}4d`,
+        }}>
           {notification}
         </div>
       )}
 
       {/* Header */}
-      <header className="dm-header sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header style={{
+        background: `linear-gradient(135deg, ${colors.accentPrimary}1a, ${colors.accentSecondary}0d)`,
+        borderBottom: `1px solid ${colors.border}`,
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+      }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
               width: '40px',
               height: '40px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+              background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -342,134 +356,134 @@ function App() {
               ✦
             </div>
             <div>
-              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.textPrimary, margin: 0 }}>
                 DISTORTED MULTIVERSE
               </h1>
-              <p className="text-xs" style={{ color: 'var(--text-muted)', letterSpacing: '2px' }}>
+              <p style={{ fontSize: '12px', color: colors.textMuted, letterSpacing: '2px', margin: 0 }}>
                 IDEAL WORLD — ЛИСТ ПЕРСОНАЖА
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button className="dm-btn dm-btn-secondary" onClick={saveToLocalStorage}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button onClick={saveToLocalStorage} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>
               💾 Сохранить
             </button>
-            <button className="dm-btn dm-btn-secondary" onClick={loadFromLocalStorage}>
+            <button onClick={loadFromLocalStorage} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>
               📂 Загрузить
             </button>
-            <button className="dm-btn dm-btn-secondary" onClick={saveToFile}>
-              📁 Экспорт JSON
+            <button onClick={saveToFile} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>
+              📁 JSON
             </button>
-            <button className="dm-btn dm-btn-secondary" onClick={() => loadInputRef.current?.click()}>
-              📥 Импорт JSON
+            <button onClick={() => loadInputRef.current?.click()} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>
+              📥 Импорт
             </button>
-            <button className="dm-btn dm-btn-secondary" onClick={exportToTxt}>
+            <button onClick={exportToTxt} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>
               📄 TXT
             </button>
-            <button className="dm-btn dm-btn-primary" onClick={exportToPng}>
+            <button onClick={exportToPng} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, color: 'white', border: 'none' }}>
               🖼️ PNG
             </button>
-            <input ref={loadInputRef} type="file" accept=".json" className="hidden" onChange={loadFromFile} />
+            <input ref={loadInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={loadFromFile} />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div ref={sheetRef} style={{ background: 'var(--bg-primary)' }}>
-          {/* Character Image + Name Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
+        <div ref={sheetRef} style={{ backgroundColor: colors.bgPrimary }}>
+          {/* Character Image + Main Info */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginBottom: '32px' }}>
             {/* Character Image */}
-            <div className="dm-card flex flex-col items-center justify-center">
-              <div className="dm-section-title">АРТЫ ПЕРСОНАЖА</div>
+            <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+                АРТЫ ПЕРСОНАЖА
+              </div>
               <div
-                className="dm-image-upload w-full aspect-square flex items-center justify-center relative"
                 onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: `2px dashed ${colors.border}`,
+                  borderRadius: '12px',
+                  width: '100%',
+                  aspectRatio: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
               >
                 {character.characterImage ? (
-                  <img
-                    src={character.characterImage}
-                    alt="Персонаж"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
+                  <img src={character.characterImage} alt="Персонаж" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
                 ) : (
-                  <div className="text-center p-6">
-                    <div className="text-4xl mb-3 opacity-50">🖼️</div>
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                      Нет видимых артов
-                    </p>
-                    <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                      Нажмите для загрузки
-                    </p>
-                  </div>
-                )}
-                {character.characterImage && (
-                  <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                    <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Изменить изображение</span>
+                  <div style={{ textAlign: 'center', padding: '24px' }}>
+                    <div style={{ fontSize: '36px', opacity: 0.5, marginBottom: '12px' }}>🖼️</div>
+                    <p style={{ fontSize: '14px', color: colors.textMuted }}>Нет видимых артов</p>
+                    <p style={{ fontSize: '12px', color: colors.textMuted, marginTop: '8px' }}>Нажмите для загрузки</p>
                   </div>
                 )}
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
             </div>
 
             {/* Main Info */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Name */}
-              <div className="dm-card">
-                <div className="dm-section-title">ГЛАВНОЕ</div>
-                <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Name & Rank */}
+              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+                  ГЛАВНОЕ
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>
                       Имя персонажа
                     </label>
                     <input
                       type="text"
-                      className="dm-input text-lg font-medium"
                       placeholder="Введите имя..."
                       value={character.name}
                       onChange={(e) => updateField('name', e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '16px', fontWeight: 500, outline: 'none' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>
                       Ранг
                     </label>
                     <input
                       type="text"
-                      className="dm-input"
                       placeholder="напр.: боец I ранга (5 012 очков)"
                       value={character.rank}
                       onChange={(e) => updateField('rank', e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '14px', outline: 'none' }}
                     />
                   </div>
                 </div>
               </div>
 
               {/* Race */}
-              <div className="dm-card">
-                <div className="dm-section-title">РАСА</div>
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+                  РАСА
+                </div>
+                <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                   <button
-                    className="dm-btn dm-btn-secondary w-full justify-between"
                     onClick={() => setShowRaceDropdown(!showRaceDropdown)}
+                    style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.races.length > 0 ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
-                    <span style={{ color: character.races.length > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      {character.races.length > 0 ? getRaceDisplay() : '+ ADD GENETIC VARIANT'}
-                    </span>
+                    <span>{character.races.length > 0 ? getRaceDisplay() : '+ ADD GENETIC VARIANT'}</span>
                     <span>▾</span>
                   </button>
                   {showRaceDropdown && (
-                    <div className="dm-dropdown-menu">
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                       {RACE_OPTIONS.map(race => (
                         <div
                           key={race}
-                          className={`dm-dropdown-item ${character.races.includes(race) ? 'selected' : ''}`}
-                          onClick={() => {
-                            toggleRace(race);
-                            if (race !== 'Зверолюд') {
-                              setShowRaceDropdown(false);
-                            }
-                          }}
+                          onClick={() => { toggleRace(race); if (race !== 'Зверолюд') setShowRaceDropdown(false); }}
+                          style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.races.includes(race) ? `${colors.accentPrimary}26` : 'transparent', color: character.races.includes(race) ? colors.accentSecondary : colors.textPrimary }}
                         >
                           <span>{character.races.includes(race) ? '✓' : '○'}</span>
                           <span>{race}</span>
@@ -479,32 +493,26 @@ function App() {
                   )}
                 </div>
 
-                {/* Beast sub-options */}
                 {character.races.includes('Зверолюд') && (
-                  <div className="mt-4 space-y-3 animate-fade-in">
-                    <div className="relative" onClick={(e) => e.stopPropagation()}>
-                      <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ position: 'relative', marginBottom: '12px' }} onClick={(e) => e.stopPropagation()}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>
                         Тип звероялюда
                       </label>
                       <button
-                        className="dm-btn dm-btn-secondary w-full justify-between"
                         onClick={() => setShowBeastDropdown(!showBeastDropdown)}
+                        style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.beastType ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                       >
-                        <span style={{ color: character.beastType ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                          {character.beastType || 'Выберите тип...'}
-                        </span>
+                        <span>{character.beastType || 'Выберите тип...'}</span>
                         <span>▾</span>
                       </button>
                       {showBeastDropdown && (
-                        <div className="dm-dropdown-menu">
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                           {BEAST_TYPES.map(type => (
                             <div
                               key={type}
-                              className={`dm-dropdown-item ${character.beastType === type ? 'selected' : ''}`}
-                              onClick={() => {
-                                updateField('beastType', type);
-                                setShowBeastDropdown(false);
-                              }}
+                              onClick={() => { updateField('beastType', type); setShowBeastDropdown(false); }}
+                              style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.beastType === type ? `${colors.accentPrimary}26` : 'transparent', color: character.beastType === type ? colors.accentSecondary : colors.textPrimary }}
                             >
                               <span>{character.beastType === type ? '✓' : '○'}</span>
                               <span>{type}</span>
@@ -513,32 +521,29 @@ function App() {
                         </div>
                       )}
                     </div>
-
                     {character.beastType === 'лисья' && (
-                      <div className="animate-fade-in">
-                        <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>
                           Количество хвостов
                         </label>
                         <input
                           type="number"
-                          className="dm-input"
                           min={1}
                           value={character.foxTails}
                           onChange={(e) => updateField('foxTails', parseInt(e.target.value) || 1)}
-                          placeholder="Кол-во хвостов"
+                          style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '14px', outline: 'none' }}
                         />
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* Selected races display */}
                 {character.races.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
                     {character.races.map(race => (
-                      <span key={race} className="dm-tag">
+                      <span key={race} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', backgroundColor: `${colors.accentPrimary}26`, border: `1px solid ${colors.accentPrimary}4d`, borderRadius: '20px', fontSize: '12px', color: colors.accentSecondary }}>
                         {race === 'Зверолюд' ? getRaceDisplay() : race}
-                        <span className="dm-tag-remove" onClick={() => toggleRace(race)}>✕</span>
+                        <span onClick={() => toggleRace(race)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span>
                       </span>
                     ))}
                   </div>
@@ -546,30 +551,26 @@ function App() {
               </div>
 
               {/* Elements */}
-              <div className="dm-card">
-                <div className="dm-section-title">ЭЛЕМЕНТЫ</div>
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+                  ЭЛЕМЕНТЫ
+                </div>
+                <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                   <button
-                    className="dm-btn dm-btn-secondary w-full justify-between"
                     onClick={() => setShowElementDropdown(!showElementDropdown)}
+                    style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.elements.length > 0 ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
-                    <span style={{ color: character.elements.length > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      {character.elements.length > 0 ? `${character.elements.length} выбрано` : '+ ADD ELEMENTAL RESONANCE'}
-                    </span>
+                    <span>{character.elements.length > 0 ? `${character.elements.length} выбрано` : '+ ADD ELEMENTAL RESONANCE'}</span>
                     <span>▾</span>
                   </button>
                   {showElementDropdown && (
-                    <div className="dm-dropdown-menu">
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                       {ELEMENT_OPTIONS.map(element => (
                         <div
                           key={element}
-                          className={`dm-dropdown-item ${character.elements.includes(element) ? 'selected' : ''}`}
-                          onClick={() => {
-                            toggleElement(element);
-                            if (element === 'Культура') {
-                              setShowCultureDropdown(true);
-                            }
-                          }}
+                          onClick={() => { toggleElement(element); if (element === 'Культура') setShowCultureDropdown(true); }}
+                          style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.elements.includes(element) ? `${colors.accentPrimary}26` : 'transparent', color: character.elements.includes(element) ? colors.accentSecondary : colors.textPrimary }}
                         >
                           <span>{character.elements.includes(element) ? '✓' : '○'}</span>
                           <span>{element}</span>
@@ -579,32 +580,26 @@ function App() {
                   )}
                 </div>
 
-                {/* Culture sub-options */}
                 {character.elements.includes('Культура') && (
-                  <div className="mt-4 animate-fade-in" onClick={(e) => e.stopPropagation()}>
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  <div style={{ marginTop: '16px' }} onClick={(e) => e.stopPropagation()}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>
                       Тип Культуры
                     </label>
-                    <div className="relative">
+                    <div style={{ position: 'relative' }}>
                       <button
-                        className="dm-btn dm-btn-secondary w-full justify-between"
                         onClick={() => setShowCultureDropdown(!showCultureDropdown)}
+                        style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.cultureType ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                       >
-                        <span style={{ color: character.cultureType ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                          {character.cultureType || 'Выберите тип культуры...'}
-                        </span>
+                        <span>{character.cultureType || 'Выберите тип культуры...'}</span>
                         <span>▾</span>
                       </button>
                       {showCultureDropdown && (
-                        <div className="dm-dropdown-menu">
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                           {CULTURE_TYPES.map(type => (
                             <div
                               key={type}
-                              className={`dm-dropdown-item ${character.cultureType === type ? 'selected' : ''}`}
-                              onClick={() => {
-                                updateField('cultureType', type);
-                                setShowCultureDropdown(false);
-                              }}
+                              onClick={() => { updateField('cultureType', type); setShowCultureDropdown(false); }}
+                              style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.cultureType === type ? `${colors.accentPrimary}26` : 'transparent', color: character.cultureType === type ? colors.accentSecondary : colors.textPrimary }}
                             >
                               <span>{character.cultureType === type ? '✓' : '○'}</span>
                               <span>{type}</span>
@@ -616,13 +611,12 @@ function App() {
                   </div>
                 )}
 
-                {/* Selected elements display */}
                 {character.elements.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
                     {character.elements.map(el => (
-                      <span key={el} className="dm-tag">
+                      <span key={el} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', backgroundColor: `${colors.accentPrimary}26`, border: `1px solid ${colors.accentPrimary}4d`, borderRadius: '20px', fontSize: '12px', color: colors.accentSecondary }}>
                         {el === 'Культура' && character.cultureType ? character.cultureType : el}
-                        <span className="dm-tag-remove" onClick={() => toggleElement(el)}>✕</span>
+                        <span onClick={() => toggleElement(el)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span>
                       </span>
                     ))}
                   </div>
@@ -632,191 +626,114 @@ function App() {
           </div>
 
           {/* Main Characteristics */}
-          <div className="dm-card mb-8">
-            <div className="dm-section-title">ОСНОВНЫЕ ХАРАКТЕРИСТИКИ</div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">СИЛА (СЛ)</div>
-                <input
-                  type="number"
-                  className="dm-stat-value text-center bg-transparent border-none outline-none w-full"
-                  style={{ color: 'var(--text-primary)' }}
-                  value={character.strength}
-                  onChange={(e) => updateField('strength', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div className="text-center p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ЛОВКОСТЬ (ЛВ)</div>
-                <input
-                  type="number"
-                  className="dm-stat-value text-center bg-transparent border-none outline-none w-full"
-                  style={{ color: 'var(--text-primary)' }}
-                  value={character.agility}
-                  onChange={(e) => updateField('agility', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div className="text-center p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ИНТЕЛЛЕКТ (ИН)</div>
-                <input
-                  type="number"
-                  className="dm-stat-value text-center bg-transparent border-none outline-none w-full"
-                  style={{ color: 'var(--text-primary)' }}
-                  value={character.intelligence}
-                  onChange={(e) => updateField('intelligence', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div className="text-center p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ЗДОРОВЬЕ (ЗД)</div>
-                <input
-                  type="number"
-                  className="dm-stat-value text-center bg-transparent border-none outline-none w-full"
-                  style={{ color: 'var(--text-primary)' }}
-                  value={character.health}
-                  onChange={(e) => updateField('health', parseInt(e.target.value) || 0)}
-                />
-              </div>
+          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+              ОСНОВНЫЕ ХАРАКТЕРИСТИКИ
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+              {[
+                { label: 'СИЛА (СЛ)', value: character.strength, field: 'strength' as keyof CharacterData },
+                { label: 'ЛОВКОСТЬ (ЛВ)', value: character.agility, field: 'agility' as keyof CharacterData },
+                { label: 'ИНТЕЛЛЕКТ (ИН)', value: character.intelligence, field: 'intelligence' as keyof CharacterData },
+                { label: 'ЗДОРОВЬЕ (ЗД)', value: character.health, field: 'health' as keyof CharacterData },
+              ].map(stat => (
+                <div key={stat.label} style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>
+                    {stat.label}
+                  </div>
+                  <input
+                    type="number"
+                    value={stat.value}
+                    onChange={(e) => updateField(stat.field, parseInt(e.target.value) || 0)}
+                    style={{ fontSize: '28px', fontWeight: 700, color: colors.textPrimary, textAlign: 'center', width: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none' }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Secondary Characteristics */}
-          <div className="dm-card mb-8">
-            <div className="dm-section-title">ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+              ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
               {/* HP */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ОЧКИ ЗДОРОВЬЯ (ОЗ)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.hpCurrent}
-                    onChange={(e) => updateField('hpCurrent', parseInt(e.target.value) || 0)}
-                  />
-                  <span style={{ color: 'var(--text-muted)' }}>/</span>
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.hpMax}
-                    onChange={(e) => updateField('hpMax', parseInt(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= СЛ</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ОЧКИ ЗДОРОВЬЯ (ОЗ)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" value={character.hpCurrent} onChange={(e) => updateField('hpCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ color: colors.textMuted }}>/</span>
+                  <input type="number" value={character.hpMax} onChange={(e) => updateField('hpMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= СЛ</span>
                 </div>
               </div>
-
               {/* Base Speed */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">СКОРОСТЬ ПЕРЕДВИЖЕНИЯ (БС)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '100px' }}
-                    value={character.baseSpeed}
-                    step={0.25}
-                    onChange={(e) => updateField('baseSpeed', parseFloat(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= (ЛВ+ЗД)/4</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>СКОРОСТЬ (БС)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" step={0.25} value={character.baseSpeed} onChange={(e) => updateField('baseSpeed', parseFloat(e.target.value) || 0)} style={{ width: '100px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= (ЛВ+ЗД)/4</span>
                 </div>
               </div>
-
               {/* Will */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ВОЛЯ (ВЛ)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.will}
-                    onChange={(e) => updateField('will', parseInt(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= ИН</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ВОЛЯ (ВЛ)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" value={character.will} onChange={(e) => updateField('will', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ИН</span>
                 </div>
               </div>
-
               {/* Perception */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">ВОСПРИЯТИЕ (ВП)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.perception}
-                    onChange={(e) => updateField('perception', parseInt(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= ИН</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ВОСПРИЯТИЕ (ВП)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" value={character.perception} onChange={(e) => updateField('perception', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ИН</span>
                 </div>
               </div>
-
               {/* Fatigue */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">УСТАЛОСТЬ (ЕУ)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.fatigueCurrent}
-                    onChange={(e) => updateField('fatigueCurrent', parseInt(e.target.value) || 0)}
-                  />
-                  <span style={{ color: 'var(--text-muted)' }}>/</span>
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.fatigueMax}
-                    onChange={(e) => updateField('fatigueMax', parseInt(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= ЗД</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>УСТАЛОСТЬ (ЕУ)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" value={character.fatigueCurrent} onChange={(e) => updateField('fatigueCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ color: colors.textMuted }}>/</span>
+                  <input type="number" value={character.fatigueMax} onChange={(e) => updateField('fatigueMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ЗД</span>
                 </div>
               </div>
-
               {/* Magic Vessel */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
-                <div className="dm-stat-label mb-2">МАГИЧЕСКИЙ СОСУД (МН)</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.magicVesselCurrent}
-                    onChange={(e) => updateField('magicVesselCurrent', parseInt(e.target.value) || 0)}
-                  />
-                  <span style={{ color: 'var(--text-muted)' }}>/</span>
-                  <input
-                    type="number"
-                    className="dm-input text-center text-lg font-bold"
-                    style={{ width: '70px' }}
-                    value={character.magicVesselMax}
-                    onChange={(e) => updateField('magicVesselMax', parseInt(e.target.value) || 0)}
-                  />
-                  <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>= ЕУ</span>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>МАГИЧЕСКИЙ СОСУД (МН)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="number" value={character.magicVesselCurrent} onChange={(e) => updateField('magicVesselCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ color: colors.textMuted }}>/</span>
+                  <input type="number" value={character.magicVesselMax} onChange={(e) => updateField('magicVesselMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ЕУ</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Special Section */}
-          <div className="dm-card">
-            <div className="dm-section-title">ОСОБОЕ</div>
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              Дополнительные настройки характеристики
-            </p>
-            <div className="mt-4 p-4 rounded-xl border border-dashed" style={{ borderColor: 'var(--border-color)' }}>
-              <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
-                • ДОБАВИТЬ ОСОБОЕ
-              </p>
+          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
+              ОСОБОЕ
+            </div>
+            <p style={{ fontSize: '14px', color: colors.textMuted }}>Дополнительные настройки характеристики</p>
+            <div style={{ marginTop: '16px', padding: '16px', borderRadius: '12px', border: `1px dashed ${colors.border}` }}>
+              <p style={{ fontSize: '14px', textAlign: 'center', color: colors.textMuted }}>• ДОБАВИТЬ ОСОБОЕ</p>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-6" style={{ borderTop: '1px solid var(--border-color)' }}>
-        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+      <footer style={{ textAlign: 'center', padding: '24px', borderTop: `1px solid ${colors.border}` }}>
+        <p style={{ fontSize: '12px', color: colors.textMuted }}>
           DISTORTED MULTIVERSE — IDEAL WORLD © Character Sheet System
         </p>
       </footer>
