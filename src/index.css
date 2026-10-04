@@ -1,1 +1,303 @@
 @import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a2e;
+  --bg-card: #16162a;
+  --border-color: #2a2a4a;
+  --accent-primary: #7c3aed;
+  --accent-secondary: #a855f7;
+  --accent-glow: rgba(124, 58, 237, 0.3);
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --danger: #ef4444;
+  --success: #22c55e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Input styles */
+.dm-input {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.dm-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.dm-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Select styles */
+.dm-select {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.2s ease;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.dm-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Button styles */
+.dm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.dm-btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border: none;
+}
+
+.dm-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.dm-btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.dm-btn-secondary:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-card);
+}
+
+.dm-btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dm-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Card styles */
+.dm-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.dm-card:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+/* Section title */
+.dm-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-secondary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dm-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+}
+
+/* Tag/chip styles */
+.dm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--accent-secondary);
+  cursor: default;
+}
+
+.dm-tag-remove {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.dm-tag-remove:hover {
+  opacity: 1;
+}
+
+/* Stat display */
+.dm-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.dm-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Header gradient */
+.dm-header {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(168, 85, 247, 0.05));
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+/* Glow effect */
+.dm-glow {
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* Image upload area */
+.dm-image-upload {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dm-image-upload:hover {
+  border-color: var(--accent-primary);
+  background: rgba(124, 58, 237, 0.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Multi-select dropdown */
+.dm-dropdown {
+  position: relative;
+}
+
+.dm-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.dm-dropdown-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dm-dropdown-item:hover {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.dm-dropdown-item.selected {
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--accent-secondary);
+}
+
+/* Number input arrows hidden */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
