@@ -50,565 +50,282 @@ const DEFAULT_CHARACTER: CharacterData = {
   characterImage: null,
 };
 
-const colors = {
-  bgPrimary: '#0a0a0f', bgSecondary: '#12121a', bgTertiary: '#1a1a2e', bgCard: '#16162a',
-  border: '#2a2a4a', accentPrimary: '#7c3aed', accentSecondary: '#a855f7',
-  textPrimary: '#e2e8f0', textMuted: '#64748b',
+const C = {
+  bg1: '#0a0a0f', bg2: '#12121a', bg3: '#1a1a2e', bg4: '#16162a',
+  brd: '#2a2a4a', ac1: '#7c3aed', ac2: '#a855f7',
+  t1: '#e2e8f0', t2: '#94a3b8', t3: '#64748b',
 };
 
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: C.ac2, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${C.ac1}, ${C.ac2})`, borderRadius: '2px', display: 'inline-block' }}></span>
+    {children}
+  </div>
+);
+
+const Card = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
+  <div style={{ backgroundColor: C.bg4, border: `1px solid ${C.brd}`, borderRadius: '12px', padding: '24px', ...style }}>
+    {children}
+  </div>
+);
+
+const Input = ({ value, onChange, placeholder, style, type = 'text' }: { value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; style?: React.CSSProperties; type?: string }) => (
+  <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={{ width: '100%', padding: '10px 14px', backgroundColor: C.bg2, border: `1px solid ${C.brd}`, borderRadius: '8px', color: C.t1, fontSize: '14px', outline: 'none', ...style }} />
+);
+
+const NumInput = ({ value, onChange, style, step }: { value: number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; style?: React.CSSProperties; step?: string }) => (
+  <input type="number" value={value} onChange={onChange} step={step} style={{ padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: C.bg3, border: `1px solid ${C.brd}`, borderRadius: '8px', color: C.t1, outline: 'none', ...style }} />
+);
+
+const Btn = ({ children, onClick, primary }: { children: React.ReactNode; onClick: () => void; primary?: boolean }) => (
+  <button onClick={onClick} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: primary ? undefined : C.bg3, background: primary ? `linear-gradient(135deg, ${C.ac1}, ${C.ac2})` : undefined, color: 'white', border: primary ? 'none' : `1px solid ${C.brd}` }}>
+    {children}
+  </button>
+);
+
 function App() {
-  const [character, setCharacter] = useState<CharacterData>(DEFAULT_CHARACTER);
-  const [showElementDropdown, setShowElementDropdown] = useState(false);
-  const [showRaceDropdown, setShowRaceDropdown] = useState(false);
-  const [showCultureDropdown, setShowCultureDropdown] = useState(false);
-  const [showBeastDropdown, setShowBeastDropdown] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
+  const [ch, setCh] = useState<CharacterData>(DEFAULT_CHARACTER);
+  const [showEl, setShowEl] = useState(false);
+  const [showRace, setShowRace] = useState(false);
+  const [showCult, setShowCult] = useState(false);
+  const [showBeast, setShowBeast] = useState(false);
+  const [notif, setNotif] = useState<string | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const loadInputRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const loadRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setCharacter(prev => ({
-      ...prev,
-      hpMax: prev.strength,
-      baseSpeed: (prev.agility + prev.health) / 4,
-      will: prev.intelligence,
-      perception: prev.intelligence,
-      fatigueMax: prev.health,
-      magicVesselMax: prev.health,
+    setCh(p => ({
+      ...p,
+      hpMax: p.strength,
+      baseSpeed: (p.agility + p.health) / 4,
+      will: p.intelligence,
+      perception: p.intelligence,
+      fatigueMax: p.health,
+      magicVesselMax: p.health,
     }));
-  }, [character.strength, character.agility, character.intelligence, character.health]);
+  }, [ch.strength, ch.agility, ch.intelligence, ch.health]);
 
-  const showNotification = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
-  };
+  const notify = (m: string) => { setNotif(m); setTimeout(() => setNotif(null), 3000); };
+  const upd = (f: keyof CharacterData, v: any) => setCh(p => ({ ...p, [f]: v }));
 
-  const updateField = (field: keyof CharacterData, value: any) => {
-    setCharacter(prev => ({ ...prev, [field]: value }));
-  };
+  const toggleRace = (r: string) => setCh(p => ({ ...p, races: p.races.includes(r) ? p.races.filter(x => x !== r) : [...p.races, r] }));
+  const toggleEl = (e: string) => setCh(p => ({ ...p, elements: p.elements.includes(e) ? p.elements.filter(x => x !== e) : [...p.elements, e] }));
 
-  const toggleRace = (race: string) => {
-    setCharacter(prev => {
-      const races = prev.races.includes(race) ? prev.races.filter(r => r !== race) : [...prev.races, race];
-      return { ...prev, races };
-    });
-  };
-
-  const getRaceDisplay = () => {
-    return character.races.map(race => {
-      if (race === 'Зверолюд') {
-        if (character.beastType === 'лисья') return `Зверолюд: лисья (${character.foxTails} хвостов)`;
-        return character.beastType ? `Зверолюд: ${character.beastType}` : 'Зверолюд';
-      }
-      return race;
-    }).join(', ');
-  };
-
-  const toggleElement = (element: string) => {
-    setCharacter(prev => {
-      const elements = prev.elements.includes(element) ? prev.elements.filter(e => e !== element) : [...prev.elements, element];
-      return { ...prev, elements };
-    });
-  };
-
-  const getElementDisplay = () => {
-    return character.elements.map(el => {
-      if (el === 'Культура' && character.cultureType) return character.cultureType;
-      return el;
-    }).join(', ');
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => updateField('characterImage', ev.target?.result as string);
-      reader.readAsDataURL(file);
+  const raceDisplay = () => ch.races.map(r => {
+    if (r === 'Зверолюд') {
+      if (ch.beastType === 'лисья') return `Зверолюд: лисья (${ch.foxTails} хвостов)`;
+      return ch.beastType ? `Зверолюд: ${ch.beastType}` : 'Зверолюд';
     }
+    return r;
+  }).join(', ');
+
+  const elDisplay = () => ch.elements.map(e => e === 'Культура' && ch.cultureType ? ch.cultureType : e).join(', ');
+
+  const handleImg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) { const r = new FileReader(); r.onload = ev => upd('characterImage', ev.target?.result as string); r.readAsDataURL(f); }
   };
 
-  const saveToFile = () => {
-    const data = JSON.stringify(character, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${character.name || 'character'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showNotification('Данные сохранены в файл!');
+  const saveJSON = () => {
+    const b = new Blob([JSON.stringify(ch, null, 2)], { type: 'application/json' });
+    const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `${ch.name || 'character'}.json`; a.click(); URL.revokeObjectURL(u);
+    notify('Сохранено!');
   };
 
-  const loadFromFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const data = JSON.parse(ev.target?.result as string);
-          setCharacter({ ...DEFAULT_CHARACTER, ...data });
-          showNotification('Данные загружены из файла!');
-        } catch {
-          showNotification('Ошибка при загрузке файла!');
-        }
-      };
-      reader.readAsText(file);
-    }
-    if (loadInputRef.current) loadInputRef.current.value = '';
+  const loadJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) { const r = new FileReader(); r.onload = ev => { try { setCh({ ...DEFAULT_CHARACTER, ...JSON.parse(ev.target?.result as string) }); notify('Загружено!'); } catch { notify('Ошибка!'); } }; r.readAsText(f); }
+    if (loadRef.current) loadRef.current.value = '';
   };
 
-  const saveToLocalStorage = () => {
-    localStorage.setItem('dm_character', JSON.stringify(character));
-    showNotification('Сохранено в браузере!');
+  const saveLS = () => { localStorage.setItem('dm_char', JSON.stringify(ch)); notify('Сохранено в браузере!'); };
+  const loadLS = () => { const s = localStorage.getItem('dm_char'); if (s) { try { setCh({ ...DEFAULT_CHARACTER, ...JSON.parse(s) }); notify('Загружено!'); } catch { notify('Ошибка!'); } } else notify('Нет данных!'); };
+
+  const exportTxt = () => {
+    const t = `═══════════════════════════════════════════\n  DISTORTED MULTIVERSE - IDEAL WORLD\n  ЛИСТ ПЕРСОНАЖА\n═══════════════════════════════════════════\n\n▸ ГЛАВНОЕ\n  Имя: ${ch.name || '—'}\n  Раса: ${raceDisplay() || '—'}\n  Элементы: ${elDisplay() || '—'}\n  Ранг: ${ch.rank || '—'}\n\n▸ ОСНОВНЫЕ ХАРАКТЕРИСТИКИ\n  Сила (СЛ): ${ch.strength}\n  Ловкость (ЛВ): ${ch.agility}\n  Интеллект (ИН): ${ch.intelligence}\n  Здоровье (ЗД): ${ch.health}\n\n▸ ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ\n  ОЗ: ${ch.hpCurrent}/${ch.hpMax}\n  БС: ${ch.baseSpeed}\n  ВЛ: ${ch.will}\n  ВП: ${ch.perception}\n  ЕУ: ${ch.fatigueCurrent}/${ch.fatigueMax}\n  МН: ${ch.magicVesselCurrent}/${ch.magicVesselMax}\n\n═══════════════════════════════════════════`;
+    const b = new Blob([t], { type: 'text/plain;charset=utf-8' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `${ch.name || 'character'}.txt`; a.click(); URL.revokeObjectURL(u);
+    notify('Экспортировано в TXT!');
   };
 
-  const loadFromLocalStorage = () => {
-    const saved = localStorage.getItem('dm_character');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        setCharacter({ ...DEFAULT_CHARACTER, ...data });
-        showNotification('Загружено из браузера!');
-      } catch {
-        showNotification('Ошибка при загрузке!');
-      }
-    } else {
-      showNotification('Нет сохранённых данных!');
-    }
-  };
-
-  const exportToTxt = () => {
-    const txt = `═══════════════════════════════════════════
-  DISTORTED MULTIVERSE - IDEAL WORLD
-  ЛИСТ ПЕРСОНАЖА
-═══════════════════════════════════════════
-
-▸ ГЛАВНОЕ
-  Имя: ${character.name || '—'}
-  Раса: ${getRaceDisplay() || '—'}
-  Элементы: ${getElementDisplay() || '—'}
-  Ранг: ${character.rank || '—'}
-
-▸ ОСНОВНЫЕ ХАРАКТЕРИСТИКИ
-  Сила (СЛ): ${character.strength}
-  Ловкость (ЛВ): ${character.agility}
-  Интеллект (ИН): ${character.intelligence}
-  Здоровье (ЗД): ${character.health}
-
-▸ ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ
-  Очки Здоровья (ОЗ): ${character.hpCurrent}/${character.hpMax}
-  Базовая Скорость (БС): ${character.baseSpeed}
-  Воля (ВЛ): ${character.will}
-  Восприятие (ВП): ${character.perception}
-  Усталость (ЕУ): ${character.fatigueCurrent}/${character.fatigueMax}
-  Магический сосуд (МН): ${character.magicVesselCurrent}/${character.magicVesselMax}
-
-═══════════════════════════════════════════
-`;
-    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${character.name || 'character'}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showNotification('Экспортировано в TXT!');
-  };
-
-  const exportToPng = () => {
+  const exportPng = () => {
     if (!sheetRef.current) return;
     try {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-
-      const width = 1200;
-      const height = 1600;
-      canvas.width = width;
-      canvas.height = height;
-
-      ctx.fillStyle = colors.bgPrimary;
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = colors.accentSecondary;
-      ctx.font = 'bold 32px Arial';
-      ctx.fillText('DISTORTED MULTIVERSE - IDEAL WORLD', 50, 60);
-
-      ctx.fillStyle = colors.textPrimary;
-      ctx.font = '24px Arial';
-      ctx.fillText('ЛИСТ ПЕРСОНАЖА', 50, 100);
-
-      let y = 160;
-      ctx.font = 'bold 18px Arial';
-      ctx.fillStyle = colors.accentSecondary;
-      ctx.fillText('ГЛАВНОЕ', 50, y);
-      y += 30;
-
-      ctx.font = '16px Arial';
-      ctx.fillStyle = colors.textPrimary;
-      ctx.fillText(`Имя: ${character.name || '—'}`, 70, y);
-      y += 25;
-      ctx.fillText(`Раса: ${getRaceDisplay() || '—'}`, 70, y);
-      y += 25;
-      ctx.fillText(`Элементы: ${getElementDisplay() || '—'}`, 70, y);
-      y += 25;
-      ctx.fillText(`Ранг: ${character.rank || '—'}`, 70, y);
-      y += 40;
-
-      ctx.font = 'bold 18px Arial';
-      ctx.fillStyle = colors.accentSecondary;
-      ctx.fillText('ОСНОВНЫЕ ХАРАКТЕРИСТИКИ', 50, y);
-      y += 30;
-
-      ctx.font = '16px Arial';
-      ctx.fillStyle = colors.textPrimary;
-      ctx.fillText(`Сила (СЛ): ${character.strength}`, 70, y);
-      y += 25;
-      ctx.fillText(`Ловкость (ЛВ): ${character.agility}`, 70, y);
-      y += 25;
-      ctx.fillText(`Интеллект (ИН): ${character.intelligence}`, 70, y);
-      y += 25;
-      ctx.fillText(`Здоровье (ЗД): ${character.health}`, 70, y);
-      y += 40;
-
-      ctx.font = 'bold 18px Arial';
-      ctx.fillStyle = colors.accentSecondary;
-      ctx.fillText('ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ', 50, y);
-      y += 30;
-
-      ctx.font = '16px Arial';
-      ctx.fillStyle = colors.textPrimary;
-      ctx.fillText(`Очки Здоровья (ОЗ): ${character.hpCurrent}/${character.hpMax}`, 70, y);
-      y += 25;
-      ctx.fillText(`Базовая Скорость (БС): ${character.baseSpeed}`, 70, y);
-      y += 25;
-      ctx.fillText(`Воля (ВЛ): ${character.will}`, 70, y);
-      y += 25;
-      ctx.fillText(`Восприятие (ВП): ${character.perception}`, 70, y);
-      y += 25;
-      ctx.fillText(`Усталость (ЕУ): ${character.fatigueCurrent}/${character.fatigueMax}`, 70, y);
-      y += 25;
-      ctx.fillText(`Магический сосуд (МН): ${character.magicVesselCurrent}/${character.magicVesselMax}`, 70, y);
-
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${character.name || 'character'}.png`;
-      a.click();
-      showNotification('Экспортировано в PNG!');
-    } catch {
-      showNotification('Ошибка при экспорте в PNG!');
-    }
+      canvas.width = 1200; canvas.height = 1400;
+      ctx.fillStyle = C.bg1; ctx.fillRect(0, 0, 1200, 1400);
+      ctx.fillStyle = C.ac2; ctx.font = 'bold 28px Arial';
+      ctx.fillText('DISTORTED MULTIVERSE - IDEAL WORLD', 50, 50);
+      ctx.fillStyle = C.t1; ctx.font = '20px Arial';
+      ctx.fillText('ЛИСТ ПЕРСОНАЖА', 50, 85);
+      let y = 140;
+      ctx.font = 'bold 16px Arial'; ctx.fillStyle = C.ac2; ctx.fillText('ГЛАВНОЕ', 50, y); y += 30;
+      ctx.font = '14px Arial'; ctx.fillStyle = C.t1;
+      ctx.fillText(`Имя: ${ch.name || '—'}`, 70, y); y += 22;
+      ctx.fillText(`Раса: ${raceDisplay() || '—'}`, 70, y); y += 22;
+      ctx.fillText(`Элементы: ${elDisplay() || '—'}`, 70, y); y += 22;
+      ctx.fillText(`Ранг: ${ch.rank || '—'}`, 70, y); y += 40;
+      ctx.font = 'bold 16px Arial'; ctx.fillStyle = C.ac2; ctx.fillText('ОСНОВНЫЕ ХАРАКТЕРИСТИКИ', 50, y); y += 30;
+      ctx.font = '14px Arial'; ctx.fillStyle = C.t1;
+      ctx.fillText(`Сила (СЛ): ${ch.strength}`, 70, y); y += 22;
+      ctx.fillText(`Ловкость (ЛВ): ${ch.agility}`, 70, y); y += 22;
+      ctx.fillText(`Интеллект (ИН): ${ch.intelligence}`, 70, y); y += 22;
+      ctx.fillText(`Здоровье (ЗД): ${ch.health}`, 70, y); y += 40;
+      ctx.font = 'bold 16px Arial'; ctx.fillStyle = C.ac2; ctx.fillText('ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ', 50, y); y += 30;
+      ctx.font = '14px Arial'; ctx.fillStyle = C.t1;
+      ctx.fillText(`ОЗ: ${ch.hpCurrent}/${ch.hpMax}`, 70, y); y += 22;
+      ctx.fillText(`БС: ${ch.baseSpeed}`, 70, y); y += 22;
+      ctx.fillText(`ВЛ: ${ch.will}`, 70, y); y += 22;
+      ctx.fillText(`ВП: ${ch.perception}`, 70, y); y += 22;
+      ctx.fillText(`ЕУ: ${ch.fatigueCurrent}/${ch.fatigueMax}`, 70, y); y += 22;
+      ctx.fillText(`МН: ${ch.magicVesselCurrent}/${ch.magicVesselMax}`, 70, y);
+      const u = canvas.toDataURL('image/png'); const a = document.createElement('a'); a.href = u; a.download = `${ch.name || 'character'}.png`; a.click();
+      notify('Экспортировано в PNG!');
+    } catch { notify('Ошибка экспорта PNG!'); }
   };
 
   useEffect(() => {
-    const handleClick = () => {
-      setShowElementDropdown(false);
-      setShowRaceDropdown(false);
-      setShowCultureDropdown(false);
-      setShowBeastDropdown(false);
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
+    const h = () => { setShowEl(false); setShowRace(false); setShowCult(false); setShowBeast(false); };
+    document.addEventListener('click', h);
+    return () => document.removeEventListener('click', h);
   }, []);
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
-      {notification && (
-        <div style={{
-          position: 'fixed', top: '16px', right: '16px', zIndex: 100,
-          backgroundColor: colors.bgCard, border: `1px solid ${colors.accentPrimary}`,
-          borderRadius: '8px', padding: '12px 20px', color: colors.accentSecondary,
-          fontSize: '14px', boxShadow: `0 4px 20px ${colors.accentPrimary}4d`,
-        }}>
-          {notification}
-        </div>
-      )}
+  const ddStyle: React.CSSProperties = { position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: C.bg2, border: `1px solid ${C.brd}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' };
+  const ddItem = (sel: boolean): React.CSSProperties => ({ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: sel ? `${C.ac1}26` : 'transparent', color: sel ? C.ac2 : C.t1 });
+  const ddBtn = (hasVal: boolean): React.CSSProperties => ({ width: '100%', padding: '10px 14px', backgroundColor: C.bg3, border: `1px solid ${C.brd}`, borderRadius: '8px', color: hasVal ? C.t1 : C.t3, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' });
+  const tagStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', backgroundColor: `${C.ac1}26`, border: `1px solid ${C.ac1}4d`, borderRadius: '20px', fontSize: '12px', color: C.ac2 };
+  const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: C.t3 };
+  const statBox = (label: string, children: React.ReactNode) => (
+    <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: C.bg2 }}>
+      <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: C.t3, marginBottom: '8px' }}>{label}</div>
+      {children}
+    </div>
+  );
 
-      <header style={{
-        background: `linear-gradient(135deg, ${colors.accentPrimary}1a, ${colors.accentSecondary}0d)`,
-        borderBottom: `1px solid ${colors.border}`, position: 'sticky', top: 0, zIndex: 40,
-      }}>
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: C.bg1, color: C.t1, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      {notif && <div style={{ position: 'fixed', top: '16px', right: '16px', zIndex: 100, backgroundColor: C.bg4, border: `1px solid ${C.ac1}`, borderRadius: '8px', padding: '12px 20px', color: C.ac2, fontSize: '14px', boxShadow: `0 4px 20px ${C.ac1}4d` }}>{notif}</div>}
+
+      <header style={{ background: `linear-gradient(135deg, ${C.ac1}1a, ${C.ac2}0d)`, borderBottom: `1px solid ${C.brd}`, position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px',
-            }}>✦</div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `linear-gradient(135deg, ${C.ac1}, ${C.ac2})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>✦</div>
             <div>
-              <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.textPrimary, margin: 0 }}>DISTORTED MULTIVERSE</h1>
-              <p style={{ fontSize: '12px', color: colors.textMuted, letterSpacing: '2px', margin: 0 }}>IDEAL WORLD — ЛИСТ ПЕРСОНАЖА</p>
+              <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: C.t1, margin: 0 }}>DISTORTED MULTIVERSE</h1>
+              <p style={{ fontSize: '12px', color: C.t3, letterSpacing: '2px', margin: 0 }}>IDEAL WORLD — ЛИСТ ПЕРСОНАЖА</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <button onClick={saveToLocalStorage} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>💾 Сохранить</button>
-            <button onClick={loadFromLocalStorage} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>📂 Загрузить</button>
-            <button onClick={saveToFile} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>📁 JSON</button>
-            <button onClick={() => loadInputRef.current?.click()} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>📥 Импорт</button>
-            <button onClick={exportToTxt} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', backgroundColor: colors.bgTertiary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>📄 TXT</button>
-            <button onClick={exportToPng} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, color: 'white', border: 'none' }}>🖼️ PNG</button>
-            <input ref={loadInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={loadFromFile} />
+            <Btn onClick={saveLS}>💾 Сохранить</Btn>
+            <Btn onClick={loadLS}>📂 Загрузить</Btn>
+            <Btn onClick={saveJSON}>📁 JSON</Btn>
+            <Btn onClick={() => loadRef.current?.click()}>📥 Импорт</Btn>
+            <Btn onClick={exportTxt}>📄 TXT</Btn>
+            <Btn onClick={exportPng} primary>🖼️ PNG</Btn>
+            <input ref={loadRef} type="file" accept=".json" style={{ display: 'none' }} onChange={loadJSON} />
           </div>
         </div>
       </header>
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
-        <div ref={sheetRef} style={{ backgroundColor: colors.bgPrimary }}>
+        <div ref={sheetRef} style={{ backgroundColor: C.bg1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginBottom: '32px' }}>
-            <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-                АРТЫ ПЕРСОНАЖА
+            <Card>
+              <SectionTitle>АРТЫ ПЕРСОНАЖА</SectionTitle>
+              <div onClick={() => fileRef.current?.click()} style={{ border: `2px dashed ${C.brd}`, borderRadius: '12px', width: '100%', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+                {ch.characterImage ? <img src={ch.characterImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} /> : <div style={{ textAlign: 'center', padding: '24px' }}><div style={{ fontSize: '36px', opacity: 0.5, marginBottom: '12px' }}>🖼️</div><p style={{ fontSize: '14px', color: C.t3 }}>Нет видимых артов</p><p style={{ fontSize: '12px', color: C.t3, marginTop: '8px' }}>Нажмите для загрузки</p></div>}
               </div>
-              <div onClick={() => fileInputRef.current?.click()} style={{
-                border: `2px dashed ${colors.border}`, borderRadius: '12px', width: '100%', aspectRatio: '1',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative',
-              }}>
-                {character.characterImage ? (
-                  <img src={character.characterImage} alt="Персонаж" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '24px' }}>
-                    <div style={{ fontSize: '36px', opacity: 0.5, marginBottom: '12px' }}>🖼️</div>
-                    <p style={{ fontSize: '14px', color: colors.textMuted }}>Нет видимых артов</p>
-                    <p style={{ fontSize: '12px', color: colors.textMuted, marginTop: '8px' }}>Нажмите для загрузки</p>
-                  </div>
-                )}
-              </div>
-              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
-            </div>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
+            </Card>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-                  ГЛАВНОЕ
-                </div>
+              <Card>
+                <SectionTitle>ГЛАВНОЕ</SectionTitle>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>Имя персонажа</label>
-                    <input type="text" placeholder="Введите имя..." value={character.name} onChange={(e) => updateField('name', e.target.value)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '16px', fontWeight: 500, outline: 'none' }} />
+                    <label style={labelStyle}>Имя персонажа</label>
+                    <Input value={ch.name} onChange={e => upd('name', e.target.value)} placeholder="Введите имя..." style={{ fontSize: '16px', fontWeight: 500 }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>Ранг</label>
-                    <input type="text" placeholder="напр.: боец I ранга (5 012 очков)" value={character.rank} onChange={(e) => updateField('rank', e.target.value)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '14px', outline: 'none' }} />
+                    <label style={labelStyle}>Ранг</label>
+                    <Input value={ch.rank} onChange={e => upd('rank', e.target.value)} placeholder="напр.: боец I ранга (5 012 очков)" />
                   </div>
                 </div>
-              </div>
+              </Card>
 
-              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-                  РАСА
+              <Card>
+                <SectionTitle>РАСА</SectionTitle>
+                <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                  <button onClick={() => setShowRace(!showRace)} style={ddBtn(ch.races.length > 0)}><span>{ch.races.length > 0 ? raceDisplay() : '+ ADD GENETIC VARIANT'}</span><span>▾</span></button>
+                  {showRace && <div style={ddStyle}>{RACE_OPTIONS.map(r => <div key={r} onClick={() => { toggleRace(r); if (r !== 'Зверолюд') setShowRace(false); }} style={ddItem(ch.races.includes(r))}><span>{ch.races.includes(r) ? '✓' : '○'}</span><span>{r}</span></div>)}</div>}
                 </div>
-                <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
-                  <button onClick={() => setShowRaceDropdown(!showRaceDropdown)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.races.length > 0 ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{character.races.length > 0 ? getRaceDisplay() : '+ ADD GENETIC VARIANT'}</span>
-                    <span>▾</span>
-                  </button>
-                  {showRaceDropdown && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                      {RACE_OPTIONS.map(race => (
-                        <div key={race} onClick={() => { toggleRace(race); if (race !== 'Зверолюд') setShowRaceDropdown(false); }} style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.races.includes(race) ? `${colors.accentPrimary}26` : 'transparent', color: character.races.includes(race) ? colors.accentSecondary : colors.textPrimary }}>
-                          <span>{character.races.includes(race) ? '✓' : '○'}</span>
-                          <span>{race}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                {ch.races.includes('Зверолюд') && <div style={{ marginTop: '16px' }}>
+                  <div style={{ position: 'relative', marginBottom: '12px' }} onClick={e => e.stopPropagation()}>
+                    <label style={labelStyle}>Тип звероялюда</label>
+                    <button onClick={() => setShowBeast(!showBeast)} style={ddBtn(!!ch.beastType)}><span>{ch.beastType || 'Выберите тип...'}</span><span>▾</span></button>
+                    {showBeast && <div style={ddStyle}>{BEAST_TYPES.map(t => <div key={t} onClick={() => { upd('beastType', t); setShowBeast(false); }} style={ddItem(ch.beastType === t)}><span>{ch.beastType === t ? '✓' : '○'}</span><span>{t}</span></div>)}</div>}
+                  </div>
+                  {ch.beastType === 'лисья' && <div><label style={labelStyle}>Количество хвостов</label><Input type="number" value={ch.foxTails} onChange={e => upd('foxTails', parseInt(e.target.value) || 1)} /></div>}
+                </div>}
+                {ch.races.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>{ch.races.map(r => <span key={r} style={tagStyle}>{r === 'Зверолюд' ? raceDisplay() : r}<span onClick={() => toggleRace(r)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span></span>)}</div>}
+              </Card>
+
+              <Card>
+                <SectionTitle>ЭЛЕМЕНТЫ</SectionTitle>
+                <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                  <button onClick={() => setShowEl(!showEl)} style={ddBtn(ch.elements.length > 0)}><span>{ch.elements.length > 0 ? `${ch.elements.length} выбрано` : '+ ADD ELEMENTAL RESONANCE'}</span><span>▾</span></button>
+                  {showEl && <div style={ddStyle}>{ELEMENT_OPTIONS.map(el => <div key={el} onClick={() => { toggleEl(el); if (el === 'Культура') setShowCult(true); }} style={ddItem(ch.elements.includes(el))}><span>{ch.elements.includes(el) ? '✓' : '○'}</span><span>{el}</span></div>)}</div>}
                 </div>
-
-                {character.races.includes('Зверолюд') && (
-                  <div style={{ marginTop: '16px' }}>
-                    <div style={{ position: 'relative', marginBottom: '12px' }} onClick={(e) => e.stopPropagation()}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>Тип звероялюда</label>
-                      <button onClick={() => setShowBeastDropdown(!showBeastDropdown)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.beastType ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{character.beastType || 'Выберите тип...'}</span>
-                        <span>▾</span>
-                      </button>
-                      {showBeastDropdown && (
-                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                          {BEAST_TYPES.map(type => (
-                            <div key={type} onClick={() => { updateField('beastType', type); setShowBeastDropdown(false); }} style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.beastType === type ? `${colors.accentPrimary}26` : 'transparent', color: character.beastType === type ? colors.accentSecondary : colors.textPrimary }}>
-                              <span>{character.beastType === type ? '✓' : '○'}</span>
-                              <span>{type}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {character.beastType === 'лисья' && (
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>Количество хвостов</label>
-                        <input type="number" min={1} value={character.foxTails} onChange={(e) => updateField('foxTails', parseInt(e.target.value) || 1)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, fontSize: '14px', outline: 'none' }} />
-                      </div>
-                    )}
+                {ch.elements.includes('Культура') && <div style={{ marginTop: '16px' }} onClick={e => e.stopPropagation()}>
+                  <label style={labelStyle}>Тип Культуры</label>
+                  <div style={{ position: 'relative' }}>
+                    <button onClick={() => setShowCult(!showCult)} style={ddBtn(!!ch.cultureType)}><span>{ch.cultureType || 'Выберите тип культуры...'}</span><span>▾</span></button>
+                    {showCult && <div style={ddStyle}>{CULTURE_TYPES.map(t => <div key={t} onClick={() => { upd('cultureType', t); setShowCult(false); }} style={ddItem(ch.cultureType === t)}><span>{ch.cultureType === t ? '✓' : '○'}</span><span>{t}</span></div>)}</div>}
                   </div>
-                )}
-
-                {character.races.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
-                    {character.races.map(race => (
-                      <span key={race} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', backgroundColor: `${colors.accentPrimary}26`, border: `1px solid ${colors.accentPrimary}4d`, borderRadius: '20px', fontSize: '12px', color: colors.accentSecondary }}>
-                        {race === 'Зверолюд' ? getRaceDisplay() : race}
-                        <span onClick={() => toggleRace(race)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-                  ЭЛЕМЕНТЫ
-                </div>
-                <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
-                  <button onClick={() => setShowElementDropdown(!showElementDropdown)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.elements.length > 0 ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{character.elements.length > 0 ? `${character.elements.length} выбрано` : '+ ADD ELEMENTAL RESONANCE'}</span>
-                    <span>▾</span>
-                  </button>
-                  {showElementDropdown && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                      {ELEMENT_OPTIONS.map(element => (
-                        <div key={element} onClick={() => { toggleElement(element); if (element === 'Культура') setShowCultureDropdown(true); }} style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.elements.includes(element) ? `${colors.accentPrimary}26` : 'transparent', color: character.elements.includes(element) ? colors.accentSecondary : colors.textPrimary }}>
-                          <span>{character.elements.includes(element) ? '✓' : '○'}</span>
-                          <span>{element}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {character.elements.includes('Культура') && (
-                  <div style={{ marginTop: '16px' }} onClick={(e) => e.stopPropagation()}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', color: colors.textMuted }}>Тип Культуры</label>
-                    <div style={{ position: 'relative' }}>
-                      <button onClick={() => setShowCultureDropdown(!showCultureDropdown)} style={{ width: '100%', padding: '10px 14px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: character.cultureType ? colors.textPrimary : colors.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{character.cultureType || 'Выберите тип культуры...'}</span>
-                        <span>▾</span>
-                      </button>
-                      {showCultureDropdown && (
-                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}`, borderRadius: '8px', marginTop: '4px', maxHeight: '240px', overflowY: 'auto', zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                          {CULTURE_TYPES.map(type => (
-                            <div key={type} onClick={() => { updateField('cultureType', type); setShowCultureDropdown(false); }} style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: character.cultureType === type ? `${colors.accentPrimary}26` : 'transparent', color: character.cultureType === type ? colors.accentSecondary : colors.textPrimary }}>
-                              <span>{character.cultureType === type ? '✓' : '○'}</span>
-                              <span>{type}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {character.elements.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
-                    {character.elements.map(el => (
-                      <span key={el} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', backgroundColor: `${colors.accentPrimary}26`, border: `1px solid ${colors.accentPrimary}4d`, borderRadius: '20px', fontSize: '12px', color: colors.accentSecondary }}>
-                        {el === 'Культура' && character.cultureType ? character.cultureType : el}
-                        <span onClick={() => toggleElement(el)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+                </div>}
+                {ch.elements.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>{ch.elements.map(el => <span key={el} style={tagStyle}>{el === 'Культура' && ch.cultureType ? ch.cultureType : el}<span onClick={() => toggleEl(el)} style={{ cursor: 'pointer', opacity: 0.7 }}>✕</span></span>)}</div>}
+              </Card>
             </div>
           </div>
 
-          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-              ОСНОВНЫЕ ХАРАКТЕРИСТИКИ
-            </div>
+          <Card style={{ marginBottom: '32px' }}>
+            <SectionTitle>ОСНОВНЫЕ ХАРАКТЕРИСТИКИ</SectionTitle>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-              {[
-                { label: 'СИЛА (СЛ)', value: character.strength, field: 'strength' as keyof CharacterData },
-                { label: 'ЛОВКОСТЬ (ЛВ)', value: character.agility, field: 'agility' as keyof CharacterData },
-                { label: 'ИНТЕЛЛЕКТ (ИН)', value: character.intelligence, field: 'intelligence' as keyof CharacterData },
-                { label: 'ЗДОРОВЬЕ (ЗД)', value: character.health, field: 'health' as keyof CharacterData },
-              ].map(stat => (
-                <div key={stat.label} style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>{stat.label}</div>
-                  <input type="number" value={stat.value} onChange={(e) => updateField(stat.field, parseInt(e.target.value) || 0)} style={{ fontSize: '28px', fontWeight: 700, color: colors.textPrimary, textAlign: 'center', width: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none' }} />
+              {[{ l: 'СИЛА (СЛ)', v: ch.strength, f: 'strength' as const }, { l: 'ЛОВКОСТЬ (ЛВ)', v: ch.agility, f: 'agility' as const }, { l: 'ИНТЕЛЛЕКТ (ИН)', v: ch.intelligence, f: 'intelligence' as const }, { l: 'ЗДОРОВЬЕ (ЗД)', v: ch.health, f: 'health' as const }].map(s => (
+                <div key={s.l} style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', backgroundColor: C.bg2 }}>
+                  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: C.t3, marginBottom: '8px' }}>{s.l}</div>
+                  <input type="number" value={s.v} onChange={e => upd(s.f, parseInt(e.target.value) || 0)} style={{ fontSize: '28px', fontWeight: 700, color: C.t1, textAlign: 'center', width: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none' }} />
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-              ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ
-            </div>
+          <Card style={{ marginBottom: '32px' }}>
+            <SectionTitle>ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ</SectionTitle>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ОЧКИ ЗДОРОВЬЯ (ОЗ)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" value={character.hpCurrent} onChange={(e) => updateField('hpCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ color: colors.textMuted }}>/</span>
-                  <input type="number" value={character.hpMax} onChange={(e) => updateField('hpMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= СЛ</span>
-                </div>
-              </div>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>СКОРОСТЬ (БС)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" step={0.25} value={character.baseSpeed} onChange={(e) => updateField('baseSpeed', parseFloat(e.target.value) || 0)} style={{ width: '100px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= (ЛВ+ЗД)/4</span>
-                </div>
-              </div>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ВОЛЯ (ВЛ)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" value={character.will} onChange={(e) => updateField('will', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ИН</span>
-                </div>
-              </div>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>ВОСПРИЯТИЕ (ВП)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" value={character.perception} onChange={(e) => updateField('perception', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ИН</span>
-                </div>
-              </div>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>УСТАЛОСТЬ (ЕУ)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" value={character.fatigueCurrent} onChange={(e) => updateField('fatigueCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ color: colors.textMuted }}>/</span>
-                  <input type="number" value={character.fatigueMax} onChange={(e) => updateField('fatigueMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ЗД</span>
-                </div>
-              </div>
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: colors.bgSecondary }}>
-                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: colors.textMuted, marginBottom: '8px' }}>МАГИЧЕСКИЙ СОСУД (МН)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="number" value={character.magicVesselCurrent} onChange={(e) => updateField('magicVesselCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ color: colors.textMuted }}>/</span>
-                  <input type="number" value={character.magicVesselMax} onChange={(e) => updateField('magicVesselMax', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '8px', textAlign: 'center', fontSize: '18px', fontWeight: 700, backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '8px', color: colors.textPrimary, outline: 'none' }} />
-                  <span style={{ fontSize: '12px', color: colors.textMuted, marginLeft: '8px' }}>= ЕУ</span>
-                </div>
-              </div>
+              {statBox('ОЧКИ ЗДОРОВЬЯ (ОЗ)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.hpCurrent} onChange={e => upd('hpCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ color: C.t3 }}>/</span><NumInput value={ch.hpMax} onChange={e => upd('hpMax', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= СЛ</span></div>)}
+              {statBox('СКОРОСТЬ (БС)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.baseSpeed} onChange={e => upd('baseSpeed', parseFloat(e.target.value) || 0)} style={{ width: '100px' }} step="0.25" /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= (ЛВ+ЗД)/4</span></div>)}
+              {statBox('ВОЛЯ (ВЛ)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.will} onChange={e => upd('will', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= ИН</span></div>)}
+              {statBox('ВОСПРИЯТИЕ (ВП)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.perception} onChange={e => upd('perception', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= ИН</span></div>)}
+              {statBox('УСТАЛОСТЬ (ЕУ)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.fatigueCurrent} onChange={e => upd('fatigueCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ color: C.t3 }}>/</span><NumInput value={ch.fatigueMax} onChange={e => upd('fatigueMax', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= ЗД</span></div>)}
+              {statBox('МАГИЧЕСКИЙ СОСУД (МН)', <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><NumInput value={ch.magicVesselCurrent} onChange={e => upd('magicVesselCurrent', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ color: C.t3 }}>/</span><NumInput value={ch.magicVesselMax} onChange={e => upd('magicVesselMax', parseInt(e.target.value) || 0)} style={{ width: '70px' }} /><span style={{ fontSize: '12px', color: C.t3, marginLeft: '8px' }}>= ЕУ</span></div>)}
             </div>
-          </div>
+          </Card>
 
-          <div style={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: colors.accentSecondary, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '4px', height: '16px', background: `linear-gradient(180deg, ${colors.accentPrimary}, ${colors.accentSecondary})`, borderRadius: '2px', display: 'inline-block' }}></span>
-              ОСОБОЕ
+          <Card>
+            <SectionTitle>ОСОБОЕ</SectionTitle>
+            <p style={{ fontSize: '14px', color: C.t3 }}>Дополнительные настройки характеристики</p>
+            <div style={{ marginTop: '16px', padding: '16px', borderRadius: '12px', border: `1px dashed ${C.brd}` }}>
+              <p style={{ fontSize: '14px', textAlign: 'center', color: C.t3 }}>• ДОБАВИТЬ ОСОБОЕ</p>
             </div>
-            <p style={{ fontSize: '14px', color: colors.textMuted }}>Дополнительные настройки характеристики</p>
-            <div style={{ marginTop: '16px', padding: '16px', borderRadius: '12px', border: `1px dashed ${colors.border}` }}>
-              <p style={{ fontSize: '14px', textAlign: 'center', color: colors.textMuted }}>• ДОБАВИТЬ ОСОБОЕ</p>
-            </div>
-          </div>
+          </Card>
         </div>
       </main>
 
-      <footer style={{ textAlign: 'center', padding: '24px', borderTop: `1px solid ${colors.border}` }}>
-        <p style={{ fontSize: '12px', color: colors.textMuted }}>DISTORTED MULTIVERSE — IDEAL WORLD © Character Sheet System</p>
+      <footer style={{ textAlign: 'center', padding: '24px', borderTop: `1px solid ${C.brd}` }}>
+        <p style={{ fontSize: '12px', color: C.t3 }}>DISTORTED MULTIVERSE — IDEAL WORLD © Character Sheet System</p>
       </footer>
     </div>
   );
