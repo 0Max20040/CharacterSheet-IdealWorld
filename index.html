@@ -1,22 +1,637 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Distorted Multiverse - Ideal World | Лист Персонажа</title>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #0a0a0f;
-        color: #e2e8f0;
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distorted Multiverse - Ideal World | Лист Персонажа</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0f; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+.container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+.header { background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(168,85,247,0.05)); border-bottom: 1px solid #2a2a4a; padding: 16px 24px; }
+.header-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7c3aed, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+h1 { font-size: 18px; font-weight: bold; }
+.subtitle { font-size: 12px; color: #64748b; letter-spacing: 2px; }
+.card { background: #16162a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #a855f7; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title::before { content: ''; width: 4px; height: 16px; background: linear-gradient(180deg, #7c3aed, #a855f7); border-radius: 2px; }
+input[type="text"], input[type="number"] { width: 100%; padding: 10px 14px; background: #12121a; border: 1px solid #2a2a4a; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; }
+input:focus { border-color: #7c3aed; }
+button { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #2a2a4a; background: #1a1a2e; color: #e2e8f0; }
+button:hover { border-color: #7c3aed; }
+.btn-primary { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; border: none; }
+.dropdown { position: relative; margin-bottom: 12px; }
+.dropdown-btn { width: 100%; padding: 10px 14px; background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 8px; color: #e2e8f0; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.dropdown-menu { position: absolute; top: 100%; left: 0; right: 0; background: #12121a; border: 1px solid #2a2a4a; border-radius: 8px; margin-top: 4px; max-height: 240px; overflow-y: auto; z-index: 50; display: none; }
+.dropdown-menu.show { display: block; }
+.dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.dropdown-item:hover { background: rgba(124,58,237,0.1); }
+.dropdown-item.selected { background: rgba(124,58,237,0.15); color: #a855f7; }
+.tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); border-radius: 20px; font-size: 12px; color: #a855f7; margin-right: 8px; margin-bottom: 8px; }
+.tag-remove { cursor: pointer; opacity: 0.7; }
+.tag-remove:hover { opacity: 1; }
+.grid-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.stat-box { padding: 16px; border-radius: 12px; background: #12121a; }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+.stat-input { padding: 8px; text-align: center; font-size: 18px; font-weight: 700; background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 8px; color: #e2e8f0; outline: none; width: 70px; }
+.main-stat { font-size: 28px; font-weight: 700; color: #e2e8f0; text-align: center; width: 100%; background: transparent; border: none; outline: none; }
+.label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; }
+.hint { font-size: 12px; color: #64748b; margin-left: 8px; }
+.img-area { border: 2px dashed #2a2a4a; border-radius: 12px; width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+.img-area:hover { border-color: #7c3aed; }
+.flex-row { display: flex; align-items: center; gap: 8px; }
+.tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.hidden { display: none; }
+.notif { position: fixed; top: 16px; right: 16px; z-index: 100; background: #16162a; border: 1px solid #7c3aed; border-radius: 8px; padding: 12px 20px; color: #a855f7; font-size: 14px; display: none; }
+.notif.show { display: block; }
+@media (max-width: 768px) {
+  .grid-2, .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .header-inner { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"></div>
+<div id="root" style="display:none"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="logo">✦</div>
+      <div>
+        <h1>DISTORTED MULTIVERSE</h1>
+        <p class="subtitle">IDEAL WORLD — ЛИСТ ПЕРСОНАЖА</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="saveLS()">💾 Сохранить</button>
+      <button onclick="loadLS()">📂 Загрузить</button>
+      <button onclick="saveJSON()">📁 JSON</button>
+      <button onclick="document.getElementById('loadFile').click()">📥 Импорт</button>
+      <button onclick="exportTxt()">📄 TXT</button>
+      <button class="btn-primary" onclick="exportPng()">🖼️ PNG</button>
+      <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadJSON(event)">
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">АРТЫ ПЕРСОНАЖА</div>
+      <div class="img-area" onclick="document.getElementById('imgFile').click()">
+        <div id="imgPreview">
+          <div style="text-align:center;padding:24px">
+            <div style="font-size:36px;opacity:0.5;margin-bottom:12px">🖼️</div>
+            <p style="font-size:14px;color:#64748b">Нет видимых артов</p>
+            <p style="font-size:12px;color:#64748b;margin-top:8px">Нажмите для загрузки</p>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleImg(event)">
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="section-title">ГЛАВНОЕ</div>
+        <div style="margin-bottom:16px">
+          <label class="label">Имя персонажа</label>
+          <input type="text" id="name" placeholder="Введите имя..." style="font-size:16px;font-weight:500">
+        </div>
+        <div>
+          <label class="label">Ранг</label>
+          <input type="text" id="rank" placeholder="напр.: боец I ранга (5 012 очков)">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">РАСА</div>
+        <div class="dropdown">
+          <button class="dropdown-btn" onclick="toggleDropdown('raceMenu')">
+            <span id="raceDisplay">+ ADD GENETIC VARIANT</span>
+            <span>▾</span>
+          </button>
+          <div class="dropdown-menu" id="raceMenu"></div>
+        </div>
+        <div id="beastSection" class="hidden">
+          <div class="dropdown" style="margin-top:16px">
+            <label class="label">Тип звероялюда</label>
+            <button class="dropdown-btn" onclick="toggleDropdown('beastMenu')">
+              <span id="beastDisplay">Выберите тип...</span>
+              <span>▾</span>
+            </button>
+            <div class="dropdown-menu" id="beastMenu"></div>
+          </div>
+          <div id="foxTailsSection" class="hidden" style="margin-top:16px">
+            <label class="label">Количество хвостов</label>
+            <input type="number" id="foxTails" min="1" value="1">
+          </div>
+        </div>
+        <div class="tags-container" id="raceTags"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">ЭЛЕМЕНТЫ</div>
+        <div class="dropdown">
+          <button class="dropdown-btn" onclick="toggleDropdown('elementMenu')">
+            <span id="elementDisplay">+ ADD ELEMENTAL RESONANCE</span>
+            <span>▾</span>
+          </button>
+          <div class="dropdown-menu" id="elementMenu"></div>
+        </div>
+        <div id="cultureSection" class="hidden" style="margin-top:16px">
+          <label class="label">Тип Культуры</label>
+          <div class="dropdown">
+            <button class="dropdown-btn" onclick="toggleDropdown('cultureMenu')">
+              <span id="cultureDisplay">Выберите тип культуры...</span>
+              <span>▾</span>
+            </button>
+            <div class="dropdown-menu" id="cultureMenu"></div>
+          </div>
+        </div>
+        <div class="tags-container" id="elementTags"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">ОСНОВНЫЕ ХАРАКТЕРИСТИКИ</div>
+    <div class="grid-4">
+      <div style="text-align:center;padding:16px;border-radius:12px;background:#12121a">
+        <div class="stat-label">СИЛА (СЛ)</div>
+        <input type="number" class="main-stat" id="strength" value="10" onchange="updateStats()">
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:12px;background:#12121a">
+        <div class="stat-label">ЛОВКОСТЬ (ЛВ)</div>
+        <input type="number" class="main-stat" id="agility" value="10" onchange="updateStats()">
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:12px;background:#12121a">
+        <div class="stat-label">ИНТЕЛЛЕКТ (ИН)</div>
+        <input type="number" class="main-stat" id="intelligence" value="10" onchange="updateStats()">
+      </div>
+      <div style="text-align:center;padding:16px;border-radius:12px;background:#12121a">
+        <div class="stat-label">ЗДОРОВЬЕ (ЗД)</div>
+        <input type="number" class="main-stat" id="health" value="10" onchange="updateStats()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ</div>
+    <div class="grid-3">
+      <div class="stat-box">
+        <div class="stat-label">ОЧКИ ЗДОРОВЬЯ (ОЗ)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="hpCurrent" value="10">
+          <span style="color:#64748b">/</span>
+          <input type="number" class="stat-input" id="hpMax" value="10">
+          <span class="hint">= СЛ</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">СКОРОСТЬ (БС)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="baseSpeed" value="5" step="0.25" style="width:100px">
+          <span class="hint">= (ЛВ+ЗД)/4</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">ВОЛЯ (ВЛ)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="will" value="10">
+          <span class="hint">= ИН</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">ВОСПРИЯТИЕ (ВП)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="perception" value="10">
+          <span class="hint">= ИН</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">УСТАЛОСТЬ (ЕУ)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="fatigueCurrent" value="10">
+          <span style="color:#64748b">/</span>
+          <input type="number" class="stat-input" id="fatigueMax" value="10">
+          <span class="hint">= ЗД</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">МАГИЧЕСКИЙ СОСУД (МН)</div>
+        <div class="flex-row">
+          <input type="number" class="stat-input" id="magicVesselCurrent" value="10">
+          <span style="color:#64748b">/</span>
+          <input type="number" class="stat-input" id="magicVesselMax" value="10">
+          <span class="hint">= ЕУ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">ОСОБОЕ</div>
+    <p style="font-size:14px;color:#64748b">Дополнительные настройки характеристики</p>
+    <div style="margin-top:16px;padding:16px;border-radius:12px;border:1px dashed #2a2a4a">
+      <p style="font-size:14px;text-align:center;color:#64748b">• ДОБАВИТЬ ОСОБОЕ</p>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:24px;border-top:1px solid #2a2a4a">
+  <p style="font-size:12px;color:#64748b">DISTORTED MULTIVERSE — IDEAL WORLD © Character Sheet System</p>
+</footer>
+
+<script>
+const RACE_OPTIONS = ['Человек','Зверолюд','Слайм','Разумный Слайм','Одно Благо','Десятки Благо','Сотня Благо','Вечное Благо','Дракон','Божество'];
+const BEAST_TYPES = ['кошачья','собачья','волчья','крольчья','лисья'];
+const ELEMENT_OPTIONS = ['Душа','Земля','Флора','Дар','Связь','Призыв','Свет','Тьма','Молния','Вода','Огонь','Лёд','Температура','Негативная энергия Смерти','Культура','Ветер','Смерть','Кровь','Время'];
+const CULTURE_TYPES = ['Культура: Создание','Культура: Аура','Культура: Физический','Культура: Магический','Культура: Духовный'];
+
+let selectedRaces = [];
+let selectedElements = [];
+let beastType = '';
+let cultureType = '';
+let characterImage = null;
+
+function notify(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  menu.classList.toggle('show');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+  }
+});
+
+function initDropdowns() {
+  const raceMenu = document.getElementById('raceMenu');
+  RACE_OPTIONS.forEach(race => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.innerHTML = `<span>○</span><span>${race}</span>`;
+    item.onclick = () => toggleRace(race);
+    raceMenu.appendChild(item);
+  });
+
+  const beastMenu = document.getElementById('beastMenu');
+  BEAST_TYPES.forEach(type => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.innerHTML = `<span>○</span><span>${type}</span>`;
+    item.onclick = () => selectBeast(type);
+    beastMenu.appendChild(item);
+  });
+
+  const elementMenu = document.getElementById('elementMenu');
+  ELEMENT_OPTIONS.forEach(el => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.innerHTML = `<span>○</span><span>${el}</span>`;
+    item.onclick = () => toggleElement(el);
+    elementMenu.appendChild(item);
+  });
+
+  const cultureMenu = document.getElementById('cultureMenu');
+  CULTURE_TYPES.forEach(type => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.innerHTML = `<span>○</span><span>${type}</span>`;
+    item.onclick = () => selectCulture(type);
+    cultureMenu.appendChild(item);
+  });
+}
+
+function toggleRace(race) {
+  if (selectedRaces.includes(race)) {
+    selectedRaces = selectedRaces.filter(r => r !== race);
+  } else {
+    selectedRaces.push(race);
+  }
+  updateRaceDisplay();
+  document.getElementById('raceMenu').classList.remove('show');
+}
+
+function updateRaceDisplay() {
+  const display = document.getElementById('raceDisplay');
+  const tags = document.getElementById('raceTags');
+  const beastSection = document.getElementById('beastSection');
+  
+  if (selectedRaces.length === 0) {
+    display.textContent = '+ ADD GENETIC VARIANT';
+    tags.innerHTML = '';
+    beastSection.classList.add('hidden');
+  } else {
+    display.textContent = getRaceDisplay();
+    beastSection.classList.toggle('hidden', !selectedRaces.includes('Зверолюд'));
+    
+    tags.innerHTML = selectedRaces.map(race => {
+      const text = race === 'Зверолюд' ? getRaceDisplay() : race;
+      return `<span class="tag">${text}<span class="tag-remove" onclick="toggleRace('${race}')">✕</span></span>`;
+    }).join('');
+  }
+  
+  updateDropdownSelection('raceMenu', selectedRaces);
+}
+
+function getRaceDisplay() {
+  return selectedRaces.map(race => {
+    if (race === 'Зверолюд') {
+      if (beastType === 'лисья') {
+        const tails = document.getElementById('foxTails').value;
+        return `Зверолюд: лисья (${tails} хвостов)`;
       }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+      return beastType ? `Зверолюд: ${beastType}` : 'Зверолюд';
+    }
+    return race;
+  }).join(', ');
+}
+
+function selectBeast(type) {
+  beastType = type;
+  document.getElementById('beastDisplay').textContent = type;
+  document.getElementById('foxTailsSection').classList.toggle('hidden', type !== 'лисья');
+  document.getElementById('beastMenu').classList.remove('show');
+  updateRaceDisplay();
+  updateDropdownSelection('beastMenu', [type]);
+}
+
+function toggleElement(el) {
+  if (selectedElements.includes(el)) {
+    selectedElements = selectedElements.filter(e => e !== el);
+  } else {
+    selectedElements.push(el);
+  }
+  updateElementDisplay();
+  document.getElementById('elementMenu').classList.remove('show');
+}
+
+function updateElementDisplay() {
+  const display = document.getElementById('elementDisplay');
+  const tags = document.getElementById('elementTags');
+  const cultureSection = document.getElementById('cultureSection');
+  
+  if (selectedElements.length === 0) {
+    display.textContent = '+ ADD ELEMENTAL RESONANCE';
+    tags.innerHTML = '';
+    cultureSection.classList.add('hidden');
+  } else {
+    display.textContent = `${selectedElements.length} выбрано`;
+    cultureSection.classList.toggle('hidden', !selectedElements.includes('Культура'));
+    
+    tags.innerHTML = selectedElements.map(el => {
+      const text = el === 'Культура' && cultureType ? cultureType : el;
+      return `<span class="tag">${text}<span class="tag-remove" onclick="toggleElement('${el}')">✕</span></span>`;
+    }).join('');
+  }
+  
+  updateDropdownSelection('elementMenu', selectedElements);
+}
+
+function selectCulture(type) {
+  cultureType = type;
+  document.getElementById('cultureDisplay').textContent = type;
+  document.getElementById('cultureMenu').classList.remove('show');
+  updateElementDisplay();
+  updateDropdownSelection('cultureMenu', [type]);
+}
+
+function updateDropdownSelection(menuId, selected) {
+  const items = document.getElementById(menuId).querySelectorAll('.dropdown-item');
+  items.forEach((item, i) => {
+    const isSelected = selected.includes(item.textContent.trim().substring(2));
+    item.classList.toggle('selected', isSelected);
+    item.querySelector('span').textContent = isSelected ? '✓' : '○';
+  });
+}
+
+function updateStats() {
+  const str = parseInt(document.getElementById('strength').value) || 0;
+  const agi = parseInt(document.getElementById('agility').value) || 0;
+  const int = parseInt(document.getElementById('intelligence').value) || 0;
+  const hp = parseInt(document.getElementById('health').value) || 0;
+  
+  document.getElementById('hpMax').value = str;
+  document.getElementById('baseSpeed').value = (agi + hp) / 4;
+  document.getElementById('will').value = int;
+  document.getElementById('perception').value = int;
+  document.getElementById('fatigueMax').value = hp;
+  document.getElementById('magicVesselMax').value = hp;
+}
+
+function handleImg(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      characterImage = e.target.result;
+      document.getElementById('imgPreview').innerHTML = `<img src="${characterImage}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function getData() {
+  return {
+    name: document.getElementById('name').value,
+    rank: document.getElementById('rank').value,
+    races: selectedRaces,
+    beastType,
+    foxTails: document.getElementById('foxTails').value,
+    elements: selectedElements,
+    cultureType,
+    strength: document.getElementById('strength').value,
+    agility: document.getElementById('agility').value,
+    intelligence: document.getElementById('intelligence').value,
+    health: document.getElementById('health').value,
+    hpCurrent: document.getElementById('hpCurrent').value,
+    hpMax: document.getElementById('hpMax').value,
+    baseSpeed: document.getElementById('baseSpeed').value,
+    will: document.getElementById('will').value,
+    perception: document.getElementById('perception').value,
+    fatigueCurrent: document.getElementById('fatigueCurrent').value,
+    fatigueMax: document.getElementById('fatigueMax').value,
+    magicVesselCurrent: document.getElementById('magicVesselCurrent').value,
+    magicVesselMax: document.getElementById('magicVesselMax').value,
+    characterImage
+  };
+}
+
+function saveLS() {
+  localStorage.setItem('dm_char', JSON.stringify(getData()));
+  notify('Сохранено!');
+}
+
+function loadLS() {
+  const data = localStorage.getItem('dm_char');
+  if (data) {
+    try {
+      const obj = JSON.parse(data);
+      loadData(obj);
+      notify('Загружено!');
+    } catch { notify('Ошибка!'); }
+  } else notify('Нет данных!');
+}
+
+function saveJSON() {
+  const data = JSON.stringify(getData(), null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${document.getElementById('name').value || 'character'}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  notify('Сохранено!');
+}
+
+function loadJSON(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const obj = JSON.parse(e.target.result);
+        loadData(obj);
+        notify('Загружено!');
+      } catch { notify('Ошибка!'); }
+    };
+    reader.readAsText(file);
+  }
+}
+
+function loadData(obj) {
+  document.getElementById('name').value = obj.name || '';
+  document.getElementById('rank').value = obj.rank || '';
+  selectedRaces = obj.races || [];
+  beastType = obj.beastType || '';
+  document.getElementById('foxTails').value = obj.foxTails || 1;
+  selectedElements = obj.elements || [];
+  cultureType = obj.cultureType || '';
+  document.getElementById('strength').value = obj.strength || 10;
+  document.getElementById('agility').value = obj.agility || 10;
+  document.getElementById('intelligence').value = obj.intelligence || 10;
+  document.getElementById('health').value = obj.health || 10;
+  document.getElementById('hpCurrent').value = obj.hpCurrent || 10;
+  document.getElementById('hpMax').value = obj.hpMax || 10;
+  document.getElementById('baseSpeed').value = obj.baseSpeed || 5;
+  document.getElementById('will').value = obj.will || 10;
+  document.getElementById('perception').value = obj.perception || 10;
+  document.getElementById('fatigueCurrent').value = obj.fatigueCurrent || 10;
+  document.getElementById('fatigueMax').value = obj.fatigueMax || 10;
+  document.getElementById('magicVesselCurrent').value = obj.magicVesselCurrent || 10;
+  document.getElementById('magicVesselMax').value = obj.magicVesselMax || 10;
+  characterImage = obj.characterImage || null;
+  
+  if (characterImage) {
+    document.getElementById('imgPreview').innerHTML = `<img src="${characterImage}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+  }
+  
+  updateRaceDisplay();
+  updateElementDisplay();
+  if (beastType) {
+    document.getElementById('beastDisplay').textContent = beastType;
+    document.getElementById('foxTailsSection').classList.toggle('hidden', beastType !== 'лисья');
+  }
+  if (cultureType) {
+    document.getElementById('cultureDisplay').textContent = cultureType;
+  }
+}
+
+function exportTxt() {
+  const data = getData();
+  const txt = `═══════════════════════════════════════════\n  DISTORTED MULTIVERSE - IDEAL WORLD\n  ЛИСТ ПЕРСОНАЖА\n═══════════════════════════════════════════\n\n▸ ГЛАВНОЕ\n  Имя: ${data.name || '—'}\n  Раса: ${getRaceDisplay() || '—'}\n  Элементы: ${selectedElements.map(e => e === 'Культура' && cultureType ? cultureType : e).join(', ') || '—'}\n  Ранг: ${data.rank || '—'}\n\n▸ ОСНОВНЫЕ ХАРАКТЕРИСТИКИ\n  Сила (СЛ): ${data.strength}\n  Ловкость (ЛВ): ${data.agility}\n  Интеллект (ИН): ${data.intelligence}\n  Здоровье (ЗД): ${data.health}\n\n▸ ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ\n  ОЗ: ${data.hpCurrent}/${data.hpMax}\n  БС: ${data.baseSpeed}\n  ВЛ: ${data.will}\n  ВП: ${data.perception}\n  ЕУ: ${data.fatigueCurrent}/${data.fatigueMax}\n  МН: ${data.magicVesselCurrent}/${data.magicVesselMax}\n\n═══════════════════════════════════════════`;
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${data.name || 'character'}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  notify('Экспортировано в TXT!');
+}
+
+function exportPng() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1200;
+  canvas.height = 1400;
+  
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, 1200, 1400);
+  
+  ctx.fillStyle = '#a855f7';
+  ctx.font = 'bold 28px Arial';
+  ctx.fillText('DISTORTED MULTIVERSE - IDEAL WORLD', 50, 50);
+  
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '20px Arial';
+  ctx.fillText('ЛИСТ ПЕРСОНАЖА', 50, 85);
+  
+  let y = 140;
+  ctx.font = 'bold 16px Arial';
+  ctx.fillStyle = '#a855f7';
+  ctx.fillText('ГЛАВНОЕ', 50, y);
+  y += 30;
+  
+  ctx.font = '14px Arial';
+  ctx.fillStyle = '#e2e8f0';
+  const data = getData();
+  ctx.fillText(`Имя: ${data.name || '—'}`, 70, y); y += 22;
+  ctx.fillText(`Раса: ${getRaceDisplay() || '—'}`, 70, y); y += 22;
+  ctx.fillText(`Элементы: ${selectedElements.map(e => e === 'Культура' && cultureType ? cultureType : e).join(', ') || '—'}`, 70, y); y += 22;
+  ctx.fillText(`Ранг: ${data.rank || '—'}`, 70, y); y += 40;
+  
+  ctx.font = 'bold 16px Arial';
+  ctx.fillStyle = '#a855f7';
+  ctx.fillText('ОСНОВНЫЕ ХАРАКТЕРИСТИКИ', 50, y);
+  y += 30;
+  
+  ctx.font = '14px Arial';
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillText(`Сила (СЛ): ${data.strength}`, 70, y); y += 22;
+  ctx.fillText(`Ловкость (ЛВ): ${data.agility}`, 70, y); y += 22;
+  ctx.fillText(`Интеллект (ИН): ${data.intelligence}`, 70, y); y += 22;
+  ctx.fillText(`Здоровье (ЗД): ${data.health}`, 70, y); y += 40;
+  
+  ctx.font = 'bold 16px Arial';
+  ctx.fillStyle = '#a855f7';
+  ctx.fillText('ПОБОЧНЫЕ ХАРАКТЕРИСТИКИ', 50, y);
+  y += 30;
+  
+  ctx.font = '14px Arial';
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillText(`ОЗ: ${data.hpCurrent}/${data.hpMax}`, 70, y); y += 22;
+  ctx.fillText(`БС: ${data.baseSpeed}`, 70, y); y += 22;
+  ctx.fillText(`ВЛ: ${data.will}`, 70, y); y += 22;
+  ctx.fillText(`ВП: ${data.perception}`, 70, y); y += 22;
+  ctx.fillText(`ЕУ: ${data.fatigueCurrent}/${data.fatigueMax}`, 70, y); y += 22;
+  ctx.fillText(`МН: ${data.magicVesselCurrent}/${data.magicVesselMax}`, 70, y);
+  
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${data.name || 'character'}.png`;
+  a.click();
+  notify('Экспортировано в PNG!');
+}
+
+initDropdowns();
+</script>
+<script type="module" src="/src/main.tsx"></script>
+
+</body>
 </html>
